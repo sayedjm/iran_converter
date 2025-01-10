@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Euro naar Toman en Rial</title>
+    <title>Valuta Converter: Euro ↔ Toman ↔ Rial</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -32,32 +32,82 @@
 </head>
 <body>
     <div class="container">
-        <h2>Euro naar Toman en Rial Converter</h2>
+        <h2>Valuta Converter</h2>
         <label for="euro">Euro bedrag (€):</label>
-        <input type="number" id="euro" placeholder="Voer het bedrag in euro in" oninput="updateValues()">
+        <input type="number" id="euro" placeholder="Voer het bedrag in euro in" oninput="convertFromEuro()">
+
+        <label for="toman">Toman bedrag:</label>
+        <input type="text" id="toman" placeholder="Voer het bedrag in toman in" oninput="formatAndConvert('toman')">
+
+        <label for="rial">Rial bedrag:</label>
+        <input type="text" id="rial" placeholder="Voer het bedrag in rial in" oninput="formatAndConvert('rial')">
 
         <label for="koers">Wisselkoers (€ → Rial):</label>
-        <input type="number" id="koers" placeholder="Voer de wisselkoers in" oninput="updateValues()">
-
-        <div class="result">
-            <p>Toman: <span id="toman">0</span></p>
-            <p>Rial: <span id="rial">0</span></p>
-        </div>
+        <input type="text" id="koers" placeholder="Voer de wisselkoers in" value="500000" oninput="formatAndConvert('koers')">
     </div>
 
     <script>
-        function updateValues() {
-            // Haal de invoerwaarden op
+        function formatNumber(value) {
+            // Formatteert met punten per 3 cijfers en rondt af naar een geheel getal
+            return Math.round(value).toLocaleString('nl-NL'); // Formatteert als 1.000.000
+        }
+
+        function parseNumber(input) {
+            // Verwijder punten om een numerieke waarde te verkrijgen
+            return parseInt(input.replace(/\./g, ''), 10) || 0;
+        }
+
+        function convertFromEuro() {
             const euro = parseFloat(document.getElementById('euro').value) || 0;
-            const koers = parseFloat(document.getElementById('koers').value) || 0;
+            const koers = parseNumber(document.getElementById('koers').value);
 
-            // Bereken de bedragen
-            const rial = euro * koers;           // Euro naar Rial
-            const toman = rial / 10;             // Rial naar Toman
+            const rial = euro * koers;
+            const toman = rial / 10;
 
-            // Update de velden op de pagina
-            document.getElementById('rial').textContent = rial.toLocaleString();
-            document.getElementById('toman').textContent = toman.toLocaleString();
+            document.getElementById('rial').value = formatNumber(rial);
+            document.getElementById('toman').value = formatNumber(toman);
+        }
+
+        function formatAndConvert(type) {
+            const inputField = document.getElementById(type);
+            const value = parseNumber(inputField.value); // Verwijder punten om een getal te krijgen
+
+            // Voeg opnieuw punten toe na 3 cijfers
+            inputField.value = formatNumber(value);
+
+            if (type === 'toman') {
+                convertFromToman();
+            } else if (type === 'rial') {
+                convertFromRial();
+            } else if (type === 'koers') {
+                convertFromEuro(); // Bij wisselkoersaanpassing meteen euro-berekening uitvoeren
+            }
+        }
+
+        function convertFromToman() {
+            const toman = parseNumber(document.getElementById('toman').value);
+            const koers = parseNumber(document.getElementById('koers').value);
+
+            const rial = toman * 10;
+            const euro = rial / koers;
+
+            document.getElementById('rial').value = formatNumber(rial);
+            document.getElementById('euro').value = formatNumber(euro);
+        }
+
+        function convertFromRial() {
+            const rial = parseNumber(document.getElementById('rial').value);
+            const koers = parseNumber(document.getElementById('koers').value);
+
+            const toman = rial / 10;
+            const euro = rial / koers;
+
+            document.getElementById('toman').value = formatNumber(toman);
+            document.getElementById('euro').value = formatNumber(euro);
+        }
+
+        function updateAll() {
+            convertFromEuro();
         }
     </script>
 </body>
